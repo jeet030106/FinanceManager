@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Consego" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#744BD7</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Consego</item>
+    </style>
+
 </resources>
