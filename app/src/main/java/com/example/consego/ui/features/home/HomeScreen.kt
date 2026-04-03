@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.consego.data.model.TransactionEntity
+import com.example.consego.data.model.TransactionType
 import com.example.consego.ui.feature.home.HomeViewModel
 
 @Composable
@@ -34,7 +41,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val total by viewModel.totalBalance.collectAsState()
     val cash by viewModel.cashBalance.collectAsState()
     val bank by viewModel.bankBalance.collectAsState()
-
+    val recentTransactions by viewModel.recentTransactions.collectAsState(initial = emptyList())
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FF))) {
         Box(
             modifier = Modifier.fillMaxWidth().height(260.dp)
@@ -54,6 +61,35 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
         }
         Text("Recent Transactions", Modifier.padding(24.dp), fontWeight = FontWeight.Bold)
+        LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+            items(recentTransactions) { transaction ->
+                TransactionItem(transaction)
+            }
+        }
+    }
+}
+@Composable
+fun TransactionItem(transaction: TransactionEntity) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.size(48.dp).background(Color(0xFFF1F1F1), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+//            Icon(Icons.Default.Payments, null, tint = Color(0xFF744BD7))
+        }
+        Spacer(Modifier.width(16.dp))
+        Column(Modifier.weight(1f)) {
+            Text(transaction.category, fontWeight = FontWeight.Bold)
+            Text(transaction.notes, fontSize = 12.sp, color = Color.Gray)
+        }
+        Text(
+            text = (if (transaction.type == TransactionType.EXPENSE) "-" else "+") + "$${transaction.amount}",
+            color = if (transaction.type == TransactionType.EXPENSE) Color.Red else Color(0xFF4CAF50),
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -66,7 +102,6 @@ fun BalanceHeaderItem(label: String, amount: String, modifier: Modifier = Modifi
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-//        Icon(icon, null, tint = Color.White, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(8.dp))
         Column {
             Text(label, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)

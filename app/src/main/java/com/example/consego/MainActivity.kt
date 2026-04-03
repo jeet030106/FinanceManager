@@ -6,26 +6,31 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.example.consego.data.data_store.UserPreferences
+import com.example.consego.ui.features.add_transaction.AddTransactionScreen
 import com.example.consego.ui.features.balance_setup.BalanceSetupScreen
 import com.example.consego.ui.features.home.HomeScreen
 import com.example.consego.ui.features.navigation.NavRoutes
 import com.example.consego.ui.features.onboarding.OnBoardingScreen
+import com.example.consego.ui.features.transaction_history.TransactionHistoryScreen
 import com.example.consego.ui.theme.ConsegoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var userPreferences: UserPreferences
@@ -54,16 +59,48 @@ class MainActivity : ComponentActivity() {
 
                                     val items = listOf(
                                         Triple(NavRoutes.Home, Icons.Default.Home, "Home"),
-                                        Triple(NavRoutes.Stats, Icons.Default.Person, "Stats"),
-                                        Triple(NavRoutes.Profile, Icons.Default.Person, "Profile")
+                                        Triple(NavRoutes.History, Icons.Default.AccountBox, "History"),
+                                        Triple(NavRoutes.AddTransaction, Icons.Default.Add, "Add")
                                     )
 
                                     items.forEach { (route, icon, label) ->
-                                        val selected = currentDest?.hierarchy?.any { it.hasRoute(route::class) } == true
+                                        val isAddButton = route is NavRoutes.AddTransaction
+
+                                        val selected = currentDest?.hierarchy?.any {
+                                            it.hasRoute(route::class)
+                                        } == true && !isAddButton
+
                                         NavigationBarItem(
                                             selected = selected,
-                                            onClick = { navController.navigate(route) },
-                                            icon = { Icon(icon, contentDescription = label, tint = if(selected) Color(0xFF744BD7) else Color.Gray) }
+                                            onClick = {
+                                                if (isAddButton) {
+                                                    // This pops up the Add screen over the current one
+                                                    navController.navigate(route)
+                                                } else {
+                                                    // Standard navigation for Home and History
+                                                    navController.navigate(route) {
+                                                        popUpTo(navController.graph.findStartDestination().id) {
+                                                            saveState = true
+                                                        }
+                                                        launchSingleTop = true
+                                                        restoreState = true
+                                                    }
+                                                }
+                                            },
+                                            icon = {
+                                                if (isAddButton) {
+                                                    // Special styling for the Add (+) icon
+                                                    Surface(
+                                                        shape = CircleShape,
+                                                        color = Color(0xFF744BD7),
+                                                        modifier = Modifier.size(42.dp)
+                                                    ) {
+                                                        Icon(icon, contentDescription = label, tint = Color.White, modifier = Modifier.padding(8.dp))
+                                                    }
+                                                } else {
+                                                    Icon(icon, contentDescription = label, tint = if(selected) Color(0xFF744BD7) else Color.Gray)
+                                                }
+                                            }
                                         )
                                     }
                                 }
@@ -77,7 +114,6 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable<NavRoutes.Onboarding> {
                                 showBottomBar.value = false
-                                // Simplified Onboarding Call
                                 OnBoardingScreen(onFinish = {
                                     scope.launch {
                                         userPreferences.saveOnboardingDone()
@@ -91,13 +127,22 @@ class MainActivity : ComponentActivity() {
                                     scope.launch {
                                         userPreferences.saveBalances(cash, bank)
                                         userPreferences.saveBalanceDone()
-                                        navController.navigate(NavRoutes.Home)
+                                        navController.navigate(NavRoutes.Home) {
+                                            popUpTo(NavRoutes.BalanceSetup) { inclusive = true }
+                                        }
                                     }
                                 })
                             }
                             composable<NavRoutes.Home> {
                                 showBottomBar.value = true
-                                HomeScreen()
+                                HomeScreen() // No arguments passed here
+                            }
+                            composable<NavRoutes.History> {
+                                showBottomBar.value = true
+                                TransactionHistoryScreen()
+                            }
+                            composable<NavRoutes.AddTransaction> {
+                                AddTransactionScreen(onBack = { navController.popBackStack() })
                             }
                         }
                     }
