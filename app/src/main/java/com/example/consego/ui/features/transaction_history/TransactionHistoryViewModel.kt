@@ -7,6 +7,7 @@ import com.example.consego.data.model.TransactionType
 import com.example.consego.data.repository.FinanceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class TransactionFilter { ALL, INCOME, EXPENSE }
@@ -14,11 +15,12 @@ enum class TransactionFilter { ALL, INCOME, EXPENSE }
 @HiltViewModel
 class TransactionHistoryViewModel @Inject constructor(
     private val repository: FinanceRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(TransactionFilter.ALL)
     val selectedFilter = _selectedFilter.asStateFlow()
 
+    // Combines database flow with UI filter state
     val filteredTransactions: StateFlow<List<TransactionEntity>> = combine(
         repository.allTransactions,
         _selectedFilter
@@ -36,5 +38,11 @@ class TransactionHistoryViewModel @Inject constructor(
 
     fun updateFilter(filter: TransactionFilter) {
         _selectedFilter.value = filter
+    }
+
+    fun deleteTransaction(transaction: TransactionEntity) {
+        viewModelScope.launch {
+            repository.delete(transaction)
+        }
     }
 }

@@ -18,6 +18,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -163,40 +169,66 @@ fun EnhancedPieChart(data: Map<String, Double>, total: Double) {
             }
         }
     }
-}
 
-// ... TransactionItem and BalanceHeaderItem remain as they were
-@Composable
-fun TransactionItem(transaction: TransactionEntity) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+
+}@Composable
+fun TransactionItem(
+    transaction: TransactionEntity,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp), // Added spacing between items
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White,
+        shadowElevation = 4.dp // Box with Shadow matching History
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(48.dp)
-                .background(Color(0xFFF1F1F1), CircleShape),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                transaction.category.take(1).uppercase(),
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF744BD7)
-            )
+
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // 2. Middle Content
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = transaction.category,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                    color = Color.Black
+                )
+                if (transaction.notes.isNotEmpty()) {
+                    Text(
+                        text = transaction.notes,
+                        fontSize = 13.sp,
+                        color = Color.Gray,
+                        maxLines = 1
+                    )
+                }
+                Text(
+                    text = transaction.accountType,
+                    fontSize = 11.sp,
+                    color = Color(0xFF744BD7), // Themed Purple
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            // 3. Right Content (Amount Only - No Edit/Delete buttons on Home)
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = if (transaction.type == TransactionType.INCOME) "+$${transaction.amount}" else "-$${transaction.amount}",
+                    color = if (transaction.type == TransactionType.INCOME) Color(0xFF4CAF50) else Color(0xFFF44336),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 17.sp
+                )
+            }
         }
-        Spacer(Modifier.width(16.dp))
-        Column(Modifier.weight(1f)) {
-            Text(transaction.category, fontWeight = FontWeight.Bold)
-            Text(transaction.notes, fontSize = 12.sp, color = Color.Gray)
-        }
-        Text(
-            text = (if (transaction.type == TransactionType.EXPENSE) "-" else "+") + "$${transaction.amount}",
-            color = if (transaction.type == TransactionType.EXPENSE) Color.Red else Color(0xFF4CAF50),
-            fontWeight = FontWeight.Bold
-        )
     }
 }
-
 @Composable
 fun BalanceHeaderItem(label: String, amount: String, modifier: Modifier = Modifier) {
     Row(

@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,11 +49,21 @@ import com.example.consego.data.model.TransactionType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
+    transactionId: Int? = null, // Added for Edit Mode
     onBack: () -> Unit,
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val isEditMode = transactionId != null
+
+    // Trigger load when screen opens with an ID for editing
+    LaunchedEffect(transactionId) {
+        if (isEditMode && transactionId != null) {
+            viewModel.loadTransaction(transactionId)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -65,7 +76,11 @@ fun AddTransactionScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Add Transaction", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = if (isEditMode) "Edit Transaction" else "Add Transaction",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
             IconButton(onClick = onBack) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
@@ -95,7 +110,7 @@ fun AddTransactionScreen(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFFF5F5F5))
         ) {
-            TransactionType.values().forEach { type ->
+            TransactionType.entries.forEach { type -> // Use .entries for Kotlin 1.9+
                 val isSelected = uiState.type == type
                 Box(
                     modifier = Modifier
@@ -150,24 +165,32 @@ fun AddTransactionScreen(
 
         // Dynamic Category Dropdown
         var expanded by remember { mutableStateOf(false) }
-        Box {
+        Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = uiState.category,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Category") },
                 trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
-                modifier = Modifier.fillMaxWidth().clickable { expanded = true },
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                enabled = false,
                 colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = Color.Black,
-                    disabledBorderColor = Color.Gray,
-                    disabledLabelColor = Color.Gray
+                    focusedBorderColor = Color(0xFF744BD7),
+                    unfocusedBorderColor = Color.Gray
                 )
             )
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                // Fetch dynamic categories from ViewModel
+            // Overlay Box to make the entire field clickable for the dropdown
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { expanded = true }
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth(0.9f)
+            ) {
                 viewModel.getCategories().forEach { cat ->
                     DropdownMenuItem(
                         text = { Text(cat) },
@@ -187,25 +210,35 @@ fun AddTransactionScreen(
             value = uiState.notes,
             onValueChange = viewModel::onNotesChange,
             label = { Text("Notes") },
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
             shape = RoundedCornerShape(12.dp)
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Save Button
+        // Save/Update Button
         Button(
-            onClick = { viewModel.saveTransaction(
-                onSuccess = { onBack() },
-                onError = { message ->
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                }
-            )},
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            onClick = {
+                viewModel.saveTransaction(
+                    onSuccess = { onBack() },
+                    onError = { message ->
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF744BD7))
         ) {
-            Text("Save Transaction", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = if (isEditMode) "Update Transaction" else "Save Transaction",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

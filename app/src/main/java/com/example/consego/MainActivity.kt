@@ -25,6 +25,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
+import androidx.navigation.toRoute
 import com.example.consego.data.data_store.UserPreferences
 import com.example.consego.ui.features.add_transaction.AddTransactionScreen
 import com.example.consego.ui.features.balance_setup.BalanceSetupScreen
@@ -38,6 +39,7 @@ import com.example.consego.ui.theme.ConsegoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var userPreferences: UserPreferences
@@ -74,7 +76,7 @@ class MainActivity : ComponentActivity() {
                                     val items = listOf(
                                         Triple(NavRoutes.Home, Icons.Default.Home, "Home"),
                                         Triple(NavRoutes.History, Icons.Default.AccountBox, "History"),
-                                        Triple(NavRoutes.AddTransaction, Icons.Default.Add, "Add"),
+                                        Triple(NavRoutes.AddTransaction(), Icons.Default.Add, "Add"), // Pass default for UI item
                                         Triple(NavRoutes.Insights, Icons.Default.DateRange, "Insights"),
                                         Triple(NavRoutes.More, Icons.Default.MoreVert, "More")
                                     )
@@ -90,10 +92,8 @@ class MainActivity : ComponentActivity() {
                                             selected = selected,
                                             onClick = {
                                                 if (isAddButton) {
-
                                                     navController.navigate(route)
                                                 } else {
-
                                                     navController.navigate(route) {
                                                         popUpTo(navController.graph.findStartDestination().id) {
                                                             saveState = true
@@ -150,14 +150,24 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<NavRoutes.Home> {
                                 showBottomBar.value = true
-                                HomeScreen() // No arguments passed here
+                                HomeScreen()
                             }
                             composable<NavRoutes.History> {
                                 showBottomBar.value = true
-                                TransactionHistoryScreen()
+                                // Added onEditNavigate to handle editing from history
+                                TransactionHistoryScreen(
+                                    onEditNavigate = { id ->
+                                        navController.navigate(NavRoutes.AddTransaction(id = id))
+                                    }
+                                )
                             }
-                            composable<NavRoutes.AddTransaction> {
-                                AddTransactionScreen(onBack = { navController.popBackStack() })
+                            composable<NavRoutes.AddTransaction> { backStackEntry ->
+                                // Extract transaction ID if it exists for editing
+                                val route: NavRoutes.AddTransaction = backStackEntry.toRoute()
+                                AddTransactionScreen(
+                                    transactionId = route.id,
+                                    onBack = { navController.popBackStack() }
+                                )
                             }
                             composable<NavRoutes.Insights> {
                                 showBottomBar.value = true

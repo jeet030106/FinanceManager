@@ -27,17 +27,17 @@ data class OnboardingPage(
 fun OnBoardingScreen(onFinish: () -> Unit) {
     val pages = listOf(
         OnboardingPage(
-            R.drawable.on_boarding1, // Make sure these exist in res/drawable
+            R.drawable.onboarding1, // Make sure these exist in res/drawable
             "Track Your Expenses",
             "Easily manage your daily spending and stay within budget."
         ),
         OnboardingPage(
-            R.drawable.on_boarding1,
+            R.drawable.onboarding2,
             "Save for the Future",
             "Set financial goals and watch your savings grow every month."
         ),
         OnboardingPage(
-            R.drawable.on_boarding1,
+            R.drawable.onboarding3,
             "Secure Your Wealth",
             "Professional level insights into your bank and cash balances."
         )

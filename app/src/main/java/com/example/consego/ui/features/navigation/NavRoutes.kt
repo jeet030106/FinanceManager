@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
     @Serializable object Onboarding : NavRoutes
     @Serializable object BalanceSetup : NavRoutes
     @Serializable object Home : NavRoutes
-    @Serializable object AddTransaction : NavRoutes
+    @Serializable
+    data class AddTransaction(val id: Int? = null) : NavRoutes
     @Serializable object History : NavRoutes
     @Serializable object Insights : NavRoutes
     @Serializable object More : NavRoutes
