@@ -10,6 +10,8 @@ import com.example.consego.data.repository.FinanceRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -66,4 +68,22 @@ class HomeViewModel @Inject constructor(
             Log.e("FCM", "Firebase not initialized: ${e.message}")
         }
     }
+
+    val todayTransactionsPieData = allTransactions.map { list ->
+        val calendar = Calendar.getInstance()
+        val today = calendar.get(Calendar.DAY_OF_YEAR)
+        val year = calendar.get(Calendar.YEAR)
+
+        // Filter for today's transactions
+        val todayList = list.filter {
+            val transCal = Calendar.getInstance().apply { time = Date(it.date) }
+            transCal.get(Calendar.DAY_OF_YEAR) == today && transCal.get(Calendar.YEAR) == year
+        }
+
+        todayList.groupBy { it.category }
+            .mapValues { entry -> entry.value.sumOf { it.amount } }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    val todayTotal = todayTransactionsPieData.map { it.values.sum() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 }

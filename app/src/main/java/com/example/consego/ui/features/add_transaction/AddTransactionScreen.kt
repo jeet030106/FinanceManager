@@ -1,5 +1,6 @@
 package com.example.consego.ui.features.add_transaction
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -50,7 +52,7 @@ fun AddTransactionScreen(
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -193,7 +195,12 @@ fun AddTransactionScreen(
 
         // Save Button
         Button(
-            onClick = { viewModel.saveTransaction(onSuccess = onBack) },
+            onClick = { viewModel.saveTransaction(
+                onSuccess = { onBack() },
+                onError = { message ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            )},
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF744BD7))
