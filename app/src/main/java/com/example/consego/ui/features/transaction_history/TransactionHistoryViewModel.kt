@@ -20,7 +20,7 @@ class TransactionHistoryViewModel @Inject constructor(
     private val _selectedFilter = MutableStateFlow(TransactionFilter.ALL)
     val selectedFilter = _selectedFilter.asStateFlow()
 
-    // Combines database flow with UI filter state
+
     val filteredTransactions: StateFlow<List<TransactionEntity>> = combine(
         repository.allTransactions,
         _selectedFilter

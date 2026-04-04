@@ -20,7 +20,6 @@ class HomeViewModel @Inject constructor(
     private val repository: FinanceRepository
 ) : ViewModel() {
 
-    // 1. Balance States (from DataStore)
     val cashBalance = userPreferences.cashBalance
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
@@ -30,7 +29,6 @@ class HomeViewModel @Inject constructor(
     val totalBalance = combine(cashBalance, bankBalance) { c, b -> c + b }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    // 2. Transaction Lists (from Room)
     val recentTransactions: StateFlow<List<TransactionEntity>> = repository.recentTransactions
         .stateIn(
             scope = viewModelScope,

@@ -10,11 +10,11 @@ data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val amount: Double,
-    val type: TransactionType, // "EXPENSE" or "INCOME"
-    val category: String,      // e.g., "Food", "Salary"
-    val date: Long,            // Timestamp (Essential for Weekly/Daily graphs)
+    val type: TransactionType,
+    val category: String,
+    val date: Long,
     val notes: String,
-    val accountType: String    // "CASH" or "BANK" (So balance updates correctly)
+    val accountType: String
 )
 
 @Serializable

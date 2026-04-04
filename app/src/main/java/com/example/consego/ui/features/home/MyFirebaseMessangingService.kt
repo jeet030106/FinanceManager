@@ -11,7 +11,6 @@ import com.google.firebase.messaging.RemoteMessage
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // This handles notifications when the app is OPEN (foreground)
         remoteMessage.notification?.let {
             showNotification(it.title ?: "Reminder", it.body ?: "")
         }

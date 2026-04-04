@@ -78,7 +78,6 @@ fun TransactionHistoryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // List with Shadowed Boxes
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 24.dp)
@@ -104,7 +103,7 @@ fun TransactionItem(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
-        shadowElevation = 4.dp // Box with Shadow
+        shadowElevation = 4.dp
     ) {
         Row(
             modifier = Modifier

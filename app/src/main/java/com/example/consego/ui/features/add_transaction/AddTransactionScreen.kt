@@ -49,7 +49,7 @@ import com.example.consego.data.model.TransactionType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
-    transactionId: Int? = null, // Added for Edit Mode
+    transactionId: Int? = null,
     onBack: () -> Unit,
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
@@ -57,7 +57,6 @@ fun AddTransactionScreen(
     val context = LocalContext.current
     val isEditMode = transactionId != null
 
-    // Trigger load when screen opens with an ID for editing
     LaunchedEffect(transactionId) {
         if (isEditMode && transactionId != null) {
             viewModel.loadTransaction(transactionId)
@@ -88,7 +87,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Amount Input
         OutlinedTextField(
             value = uiState.amount,
             onValueChange = viewModel::onAmountChange,
@@ -101,7 +99,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Transaction Type Toggle
         Text("Transaction Type", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
         Row(
             modifier = Modifier
@@ -110,7 +107,7 @@ fun AddTransactionScreen(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFFF5F5F5))
         ) {
-            TransactionType.entries.forEach { type -> // Use .entries for Kotlin 1.9+
+            TransactionType.entries.forEach { type ->
                 val isSelected = uiState.type == type
                 Box(
                     modifier = Modifier
@@ -132,7 +129,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Payment Method Toggle
         Text("Payment Method", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
         Row(
             modifier = Modifier
@@ -163,7 +159,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dynamic Category Dropdown
         var expanded by remember { mutableStateOf(false) }
         Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
@@ -179,7 +174,6 @@ fun AddTransactionScreen(
                     unfocusedBorderColor = Color.Gray
                 )
             )
-            // Overlay Box to make the entire field clickable for the dropdown
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -218,7 +212,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Save/Update Button
         Button(
             onClick = {
                 viewModel.saveTransaction(

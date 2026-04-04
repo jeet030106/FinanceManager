@@ -59,7 +59,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     }
 
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FF))) {
-        // 1. Balance Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,7 +80,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
             }
         }
 
-        // We use LazyColumn for the whole screen content to allow scrolling
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             // Today's Expenditure Card
             item {
@@ -92,7 +90,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        // Numeric Total Display
                         Text(
                             text = "Total: $${String.format("%.2f", todayTotal)}",
                             color = Color(0xFF744BD7),
@@ -156,7 +153,7 @@ fun EnhancedPieChart(data: Map<String, Double>, total: Double) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            data.entries.take(4).forEachIndexed { index, entry -> // Showing top 4 for space
+            data.entries.take(4).forEachIndexed { index, entry ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors[index % colors.size]))
                     Spacer(modifier = Modifier.width(8.dp))
@@ -178,10 +175,10 @@ fun TransactionItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp), // Added spacing between items
+            .padding(vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         color = Color.White,
-        shadowElevation = 4.dp // Box with Shadow matching History
+        shadowElevation = 4.dp
     ) {
         Row(
             modifier = Modifier
@@ -193,7 +190,6 @@ fun TransactionItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // 2. Middle Content
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = transaction.category,
@@ -217,7 +213,6 @@ fun TransactionItem(
                 )
             }
 
-            // 3. Right Content (Amount Only - No Edit/Delete buttons on Home)
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = if (transaction.type == TransactionType.INCOME) "+$${transaction.amount}" else "-$${transaction.amount}",
