@@ -29,14 +29,13 @@ fun InsightsScreen(onGoalClick: () -> Unit, viewModel: InsightsViewModel = hiltV
     val weeklyData by viewModel.weeklyCategoryExpenditure.collectAsState()
     val monthlyStats by viewModel.monthlyStats.collectAsState()
     val barData by viewModel.last6MonthsExpenditure.collectAsState()
-
     val savingsTrend by viewModel.savingsTrend.collectAsState()
     val savingsRate by viewModel.savingsRate.collectAsState()
 
-    // New Goal States
     val isGoalActive by viewModel.isGoalActive.collectAsState()
     val goalLimit by viewModel.goalDailyLimit.collectAsState()
     val todaySpent by viewModel.todayExpenditure.collectAsState()
+    val streakInfo by viewModel.streakProgress.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text("Insights", fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -76,6 +75,7 @@ fun InsightsScreen(onGoalClick: () -> Unit, viewModel: InsightsViewModel = hiltV
                 isGoalActive = isGoalActive,
                 goalLimit = goalLimit,
                 todaySpent = todaySpent,
+                streakInfo = streakInfo,
                 onStartGoal = { limit, days -> viewModel.startGoal(limit, days) },
                 onResetGoal = { viewModel.resetGoal() }
             )
@@ -90,6 +90,7 @@ fun SavingsInsights(
     isGoalActive: Boolean,
     goalLimit: Double,
     todaySpent: Double,
+    streakInfo: Pair<Int, Int>,
     onStartGoal: (Double, Int) -> Unit,
     onResetGoal: () -> Unit
 ) {
@@ -102,6 +103,8 @@ fun SavingsInsights(
                 isActive = isGoalActive,
                 dailyLimit = goalLimit,
                 todaySpent = todaySpent,
+                streakDay = streakInfo.first,
+                totalDays = streakInfo.second,
                 onStartGoal = onStartGoal,
                 onReset = onResetGoal
             )
@@ -153,6 +156,8 @@ fun SavingsGoalHero(
     isActive: Boolean,
     dailyLimit: Double,
     todaySpent: Double,
+    streakDay: Int,
+    totalDays: Int,
     onStartGoal: (Double, Int) -> Unit,
     onReset: () -> Unit
 ) {
@@ -161,23 +166,48 @@ fun SavingsGoalHero(
     if (isActive) {
         val isExceeded = todaySpent > dailyLimit
         val remaining = (dailyLimit - todaySpent).coerceAtLeast(0.0)
+        val daysLeft = (totalDays - streakDay).coerceAtLeast(0)
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
+                .height(230.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(if (isExceeded) Color(0xFFEF5350) else Color(0xFF744BD7))
                 .padding(24.dp)
         ) {
             Column {
-                Text(
-                    text = if (isExceeded) "Streak Broken!" else "Goal Streak Active",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (isExceeded) "Streak Broken!" else "Day $streakDay of $totalDays",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    if (!isExceeded) {
+                        Text(
+                            text = "$daysLeft days left",
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                if (!isExceeded) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { streakDay.toFloat() / totalDays.toFloat() },
+                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
+                        color = Color.White,
+                        trackColor = Color.White.copy(alpha = 0.3f),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Spent Today: $${String.format("%.2f", todaySpent)}",
                     color = Color.White,
@@ -206,7 +236,6 @@ fun SavingsGoalHero(
             }
         }
     } else {
-        // Initial Starting State
         Box(
             modifier = Modifier
                 .fillMaxWidth()

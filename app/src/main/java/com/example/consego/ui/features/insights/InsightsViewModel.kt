@@ -21,7 +21,6 @@ class InsightsViewModel @Inject constructor(
 
     private val allTransactions = repository.allTransactions
 
-    // --- GOAL STATES ---
     private val _isGoalActive = MutableStateFlow(false)
     val isGoalActive = _isGoalActive.asStateFlow()
 
@@ -31,7 +30,9 @@ class InsightsViewModel @Inject constructor(
     private val _goalTotalDays = MutableStateFlow(0)
     val goalTotalDays = _goalTotalDays.asStateFlow()
 
-    // 1. Weekly Expenditure
+    private val _goalStartDate = MutableStateFlow<Long?>(null)
+    val goalStartDate = _goalStartDate.asStateFlow()
+
     val weeklyCategoryExpenditure = allTransactions.map { list ->
         val cal = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, 0)
@@ -45,7 +46,6 @@ class InsightsViewModel @Inject constructor(
             .mapValues { it.value.sumOf { trans -> trans.amount } }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    // 2. Monthly Comparison
     val monthlyStats = allTransactions.map { list ->
         val now = Calendar.getInstance()
         val currentMonth = now.get(Calendar.MONTH)
@@ -66,7 +66,6 @@ class InsightsViewModel @Inject constructor(
         Triple(currentTotal, lastTotal, diff)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Triple(0.0, 0.0, 0.0))
 
-    // 3. Last 6 Months
     val last6MonthsExpenditure = allTransactions.map { list ->
         val result = mutableMapOf<String, Double>()
         val monthFormat = java.text.SimpleDateFormat("MMM", Locale.getDefault())
@@ -81,7 +80,6 @@ class InsightsViewModel @Inject constructor(
         result.toList().reversed().toMap()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    // 4. Savings Trend
     val savingsTrend = allTransactions.map { list ->
         if (list.isEmpty()) return@map listOf(0.0, 0.0)
         val sortedList = list.sortedBy { it.date }
@@ -94,7 +92,6 @@ class InsightsViewModel @Inject constructor(
         if (points.size < 2) listOf(0.0, runningBalance) else points
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf(0.0, 0.0))
 
-    // 5. Savings Rate
     val savingsRate = allTransactions.map { list ->
         val now = Calendar.getInstance()
         val currentMonthTransactions = list.filter {
@@ -106,7 +103,6 @@ class InsightsViewModel @Inject constructor(
         if (income > 0) ((income - expense) / income) * 100 else 0.0
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    // 6. Today's Expenditure Logic (New)
     val todayExpenditure = allTransactions.map { list ->
         val now = Calendar.getInstance()
         list.filter {
@@ -117,9 +113,17 @@ class InsightsViewModel @Inject constructor(
         }.sumOf { it.amount }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
+    val streakProgress = _goalStartDate.map { startMillis ->
+        if (startMillis == null) return@map Pair(0, 0)
+        val diffMillis = System.currentTimeMillis() - startMillis
+        val currentDay = (diffMillis / (24 * 60 * 60 * 1000)).toInt() + 1
+        Pair(currentDay, _goalTotalDays.value)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Pair(0, 0))
+
     fun startGoal(limit: Double, days: Int) {
         _goalDailyLimit.value = limit
         _goalTotalDays.value = days
+        _goalStartDate.value = System.currentTimeMillis()
         _isGoalActive.value = true
     }
 
@@ -127,6 +131,7 @@ class InsightsViewModel @Inject constructor(
         _isGoalActive.value = false
         _goalDailyLimit.value = 0.0
         _goalTotalDays.value = 0
+        _goalStartDate.value = null
     }
 
     fun selectTab(tab: InsightTab) { _selectedTab.value = tab }
