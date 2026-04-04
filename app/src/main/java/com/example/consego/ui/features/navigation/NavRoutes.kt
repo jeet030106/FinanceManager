@@ -9,4 +9,6 @@ import kotlinx.serialization.Serializable
     @Serializable object AddTransaction : NavRoutes
     @Serializable object History : NavRoutes
     @Serializable object Insights : NavRoutes
+    @Serializable object More : NavRoutes
+    @Serializable object GoalSetup : NavRoutes
 }

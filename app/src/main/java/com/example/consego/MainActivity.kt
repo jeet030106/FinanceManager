@@ -25,6 +25,7 @@ import com.example.consego.ui.features.add_transaction.AddTransactionScreen
 import com.example.consego.ui.features.balance_setup.BalanceSetupScreen
 import com.example.consego.ui.features.home.HomeScreen
 import com.example.consego.ui.features.insights.InsightsScreen
+import com.example.consego.ui.features.more.MoreScreen
 import com.example.consego.ui.features.navigation.NavRoutes
 import com.example.consego.ui.features.onboarding.OnBoardingScreen
 import com.example.consego.ui.features.transaction_history.TransactionHistoryScreen
@@ -62,7 +63,8 @@ class MainActivity : ComponentActivity() {
                                         Triple(NavRoutes.Home, Icons.Default.Home, "Home"),
                                         Triple(NavRoutes.History, Icons.Default.AccountBox, "History"),
                                         Triple(NavRoutes.AddTransaction, Icons.Default.Add, "Add"),
-                                        Triple(NavRoutes.Insights, Icons.Default.DateRange, "Insights")
+                                        Triple(NavRoutes.Insights, Icons.Default.DateRange, "Insights"),
+                                        Triple(NavRoutes.More, Icons.Default.MoreVert, "More")
                                     )
 
                                     items.forEach { (route, icon, label) ->
@@ -148,7 +150,15 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<NavRoutes.Insights> {
                                 showBottomBar.value = true
-                                InsightsScreen()
+                                InsightsScreen({navController.navigate(NavRoutes.GoalSetup)})
+                            }
+                            composable<NavRoutes.More> {
+                                showBottomBar.value = true
+                                MoreScreen()
+                            }
+                            composable<NavRoutes.GoalSetup> {
+                                showBottomBar.value = true
+
                             }
                         }
                     }
