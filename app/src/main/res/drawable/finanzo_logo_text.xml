@@ -1,0 +1,49 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="600"
+    android:viewportHeight="600">
+
+    <group
+        android:name="circular_safe_group"
+        android:pivotX="300"
+        android:pivotY="300"
+        android:scaleX="0.75"
+        android:scaleY="0.75"
+        android:translateX="50"
+        android:translateY="140">
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M50,110 L53,170 Q53,175 47,175 L40,175 Q35,175 35,165 L30,95 Q30,85 45,85 L85,80 Q95,80 95,90 L93,100 Q93,110 83,110 L60,115 L63,135 L80,130 Q90,130 90,140 L88,150 Q88,160 78,160 L63,160 L50,110 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M110,125 L105,165 Q105,175 115,175 Q125,175 125,165 L130,125 Q130,115 120,115 Q110,115 110,125 Z M115,100 A5,5 0 1,1 125,100 A5,5 0 1,1 115,100" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M140,130 L135,170 Q135,180 145,180 Q155,180 155,170 L157,145 Q157,130 175,130 Q190,130 190,145 L187,170 Q187,180 197,180 Q207,180 207,170 L210,140 Q210,120 180,120 Q160,120 155,135 L140,130 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M230,125 Q210,125 210,150 Q210,175 230,175 Q245,175 250,160 L250,170 Q250,180 260,180 Q270,180 270,170 L273,130 Q273,120 260,120 Q240,120 230,125 Z M250,140 L250,155 Q245,165 233,165 Q223,165 223,150 Q223,135 233,135 Q245,135 250,140 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M285,130 L280,170 Q280,180 290,180 Q300,180 300,170 L302,145 Q302,130 320,130 Q335,130 335,145 L332,170 Q332,180 342,180 Q352,180 352,170 L355,140 Q355,120 325,120 Q305,120 300,135 L285,130 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M370,125 L405,125 Q415,125 415,135 Q415,145 405,145 L380,160 L405,160 Q415,160 415,170 Q415,180 405,180 L365,180 Q355,180 355,170 Q355,160 365,160 L390,145 L370,145 Q360,145 360,135 Q360,125 370,125 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M440,120 Q420,120 420,150 Q420,180 440,180 Q460,180 460,150 Q460,120 440,120 Z M440,135 Q448,135 448,150 Q448,165 440,165 Q432,165 432,150 Q432,135 440,135 Z" />
+
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,195 C65,190 145,183 265,187 C295,188 325,193 345,200 L347,207 C295,200 195,193 65,200 C45,201 35,203 27,207 Z" />
+
+    </group>
+</vector>
