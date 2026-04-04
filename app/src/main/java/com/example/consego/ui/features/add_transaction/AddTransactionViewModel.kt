@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val repository: FinanceRepository
@@ -22,10 +21,26 @@ class AddTransactionViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddTransactionUiState())
     val uiState = _uiState.asStateFlow()
 
-    val categories = listOf("Food", "Salary", "Transport", "Rent", "Groceries", "Shopping", "Entertainment")
+    // Dynamic Category Lists
+    private val incomeCategories = listOf("Salary", "Investment", "Sale", "Others")
+    private val expenseCategories = listOf("Rent", "Food & Shopping", "Trip", "Groceries", "Movies", "Others")
+
+    // Helper to get categories based on current selection
+    fun getCategories(): List<String> {
+        return if (_uiState.value.type == TransactionType.INCOME) incomeCategories else expenseCategories
+    }
 
     fun onAmountChange(amount: String) = _uiState.update { it.copy(amount = amount) }
-    fun onTypeChange(type: TransactionType) = _uiState.update { it.copy(type = type) }
+
+    fun onTypeChange(type: TransactionType) {
+        _uiState.update {
+            it.copy(
+                type = type,
+                category = if (type == TransactionType.INCOME) incomeCategories[0] else expenseCategories[0]
+            )
+        }
+    }
+
     fun onCategoryChange(category: String) = _uiState.update { it.copy(category = category) }
     fun onNotesChange(notes: String) = _uiState.update { it.copy(notes = notes) }
     fun onAccountTypeChange(account: String) = _uiState.update { it.copy(accountType = account) }

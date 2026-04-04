@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
     @Serializable object Home : NavRoutes
     @Serializable object AddTransaction : NavRoutes
     @Serializable object History : NavRoutes
+    @Serializable object Insights : NavRoutes
 }

@@ -24,6 +24,7 @@ import com.example.consego.data.data_store.UserPreferences
 import com.example.consego.ui.features.add_transaction.AddTransactionScreen
 import com.example.consego.ui.features.balance_setup.BalanceSetupScreen
 import com.example.consego.ui.features.home.HomeScreen
+import com.example.consego.ui.features.insights.InsightsScreen
 import com.example.consego.ui.features.navigation.NavRoutes
 import com.example.consego.ui.features.onboarding.OnBoardingScreen
 import com.example.consego.ui.features.transaction_history.TransactionHistoryScreen
@@ -60,7 +61,8 @@ class MainActivity : ComponentActivity() {
                                     val items = listOf(
                                         Triple(NavRoutes.Home, Icons.Default.Home, "Home"),
                                         Triple(NavRoutes.History, Icons.Default.AccountBox, "History"),
-                                        Triple(NavRoutes.AddTransaction, Icons.Default.Add, "Add")
+                                        Triple(NavRoutes.AddTransaction, Icons.Default.Add, "Add"),
+                                        Triple(NavRoutes.Insights, Icons.Default.DateRange, "Insights")
                                     )
 
                                     items.forEach { (route, icon, label) ->
@@ -74,10 +76,10 @@ class MainActivity : ComponentActivity() {
                                             selected = selected,
                                             onClick = {
                                                 if (isAddButton) {
-                                                    // This pops up the Add screen over the current one
+
                                                     navController.navigate(route)
                                                 } else {
-                                                    // Standard navigation for Home and History
+
                                                     navController.navigate(route) {
                                                         popUpTo(navController.graph.findStartDestination().id) {
                                                             saveState = true
@@ -143,6 +145,10 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<NavRoutes.AddTransaction> {
                                 AddTransactionScreen(onBack = { navController.popBackStack() })
+                            }
+                            composable<NavRoutes.Insights> {
+                                showBottomBar.value = true
+                                InsightsScreen()
                             }
                         }
                     }

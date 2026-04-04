@@ -75,10 +75,16 @@ fun TransactionItem(transaction: TransactionEntity) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.size(48.dp).background(Color(0xFFF1F1F1), CircleShape),
+            modifier = Modifier
+                .size(48.dp)
+                .background(Color(0xFFF1F1F1), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-//            Icon(Icons.Default.Payments, null, tint = Color(0xFF744BD7))
+            Text(
+                transaction.category.take(1).uppercase(),
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF744BD7)
+            )
         }
         Spacer(Modifier.width(16.dp))
         Column(Modifier.weight(1f)) {

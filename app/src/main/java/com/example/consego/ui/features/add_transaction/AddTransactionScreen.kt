@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.consego.data.model.TransactionType
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTransactionScreen(
@@ -85,7 +84,7 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Type Toggle (Expense/Income)
+        // Transaction Type Toggle
         Text("Transaction Type", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
         Row(
             modifier = Modifier
@@ -116,6 +115,7 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Payment Method Toggle
         Text("Payment Method", fontSize = 14.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 8.dp))
         Row(
             modifier = Modifier
@@ -146,7 +146,7 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Category Dropdown
+        // Dynamic Category Dropdown
         var expanded by remember { mutableStateOf(false) }
         Box {
             OutlinedTextField(
@@ -165,7 +165,8 @@ fun AddTransactionScreen(
                 )
             )
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                viewModel.categories.forEach { cat ->
+                // Fetch dynamic categories from ViewModel
+                viewModel.getCategories().forEach { cat ->
                     DropdownMenuItem(
                         text = { Text(cat) },
                         onClick = {
