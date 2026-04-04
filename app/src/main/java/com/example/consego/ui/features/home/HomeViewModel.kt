@@ -1,11 +1,13 @@
 package com.example.consego.ui.feature.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.consego.data.data_store.UserPreferences
 import com.example.consego.data.model.TransactionEntity
 import com.example.consego.data.model.TransactionType
 import com.example.consego.data.repository.FinanceRepository
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -41,7 +43,7 @@ class HomeViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    // 3. Totals for the "Income/Expense" cards on Home Screen
+
     val totalIncome = allTransactions.map { list ->
         list.filter { it.type == TransactionType.INCOME }.sumOf { it.amount }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
@@ -49,4 +51,19 @@ class HomeViewModel @Inject constructor(
     val totalExpense = allTransactions.map { list ->
         list.filter { it.type == TransactionType.EXPENSE }.sumOf { it.amount }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    fun getFcmToken() {
+        try {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                Log.d("FCM_TOKEN_RESULT", "Token: $token")
+            }
+        } catch (e: Exception) {
+            Log.e("FCM", "Firebase not initialized: ${e.message}")
+        }
+    }
 }

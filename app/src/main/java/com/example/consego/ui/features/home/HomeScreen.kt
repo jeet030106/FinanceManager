@@ -16,10 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +39,9 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val total by viewModel.totalBalance.collectAsState()
     val cash by viewModel.cashBalance.collectAsState()
     val bank by viewModel.bankBalance.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getFcmToken()
+    }
     val recentTransactions by viewModel.recentTransactions.collectAsState(initial = emptyList())
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FF))) {
         Box(

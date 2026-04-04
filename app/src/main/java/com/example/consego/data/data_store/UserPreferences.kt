@@ -21,7 +21,6 @@ class UserPreferences(private val context: Context) {
     val isBalanceSetupCompleted: Flow<Boolean> = context.dataStore.data.map { it[IS_BALANCE_DONE] ?: false }
     val cashBalance: Flow<Double> = context.dataStore.data.map { it[CASH_BAL] ?: 0.0 }
     val bankBalance: Flow<Double> = context.dataStore.data.map { it[BANK_BAL] ?: 0.0 }
-
     suspend fun saveOnboardingDone() { context.dataStore.edit { it[IS_ONBOARDING_DONE] = true } }
     suspend fun saveBalanceDone() { context.dataStore.edit { it[IS_BALANCE_DONE] = true } }
     suspend fun saveBalances(cash: Double, bank: Double) {
