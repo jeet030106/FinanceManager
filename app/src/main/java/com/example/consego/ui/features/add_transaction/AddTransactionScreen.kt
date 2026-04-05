@@ -199,7 +199,6 @@ fun AddTransactionScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Notes Input
         OutlinedTextField(
             value = uiState.notes,
             onValueChange = viewModel::onNotesChange,

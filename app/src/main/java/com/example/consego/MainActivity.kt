@@ -39,7 +39,6 @@ import com.example.consego.ui.theme.ConsegoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var userPreferences: UserPreferences
@@ -49,6 +48,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Notification Permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED) {
@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
             ConsegoTheme {
                 val navController = rememberNavController()
                 val scope = rememberCoroutineScope()
+
+                // Track BottomBar visibility
                 val showBottomBar = remember { mutableStateOf(false) }
 
                 val onboardingDone by userPreferences.isOnboardingCompleted.collectAsState(initial = null)
@@ -76,7 +78,7 @@ class MainActivity : ComponentActivity() {
                                     val items = listOf(
                                         Triple(NavRoutes.Home, Icons.Default.Home, "Home"),
                                         Triple(NavRoutes.History, Icons.Default.AccountBox, "History"),
-                                        Triple(NavRoutes.AddTransaction(), Icons.Default.Add, "Add"), // Pass default for UI item
+                                        Triple(NavRoutes.AddTransaction(), Icons.Default.Add, "Add"),
                                         Triple(NavRoutes.Insights, Icons.Default.DateRange, "Insights"),
                                         Triple(NavRoutes.More, Icons.Default.MoreVert, "More")
                                     )
@@ -84,17 +86,23 @@ class MainActivity : ComponentActivity() {
                                     items.forEach { (route, icon, label) ->
                                         val isAddButton = route is NavRoutes.AddTransaction
 
+                                        // Logic to determine if this tab is active
                                         val selected = currentDest?.hierarchy?.any {
                                             it.hasRoute(route::class)
-                                        } == true && !isAddButton
+                                        } == true
 
                                         NavigationBarItem(
-                                            selected = selected,
+                                            // Don't show selection highlight for the center '+' button
+                                            selected = selected && !isAddButton,
                                             onClick = {
                                                 if (isAddButton) {
+                                                    // Navigate to Add Transaction (Bottom bar will hide via NavHost logic)
                                                     navController.navigate(route)
                                                 } else {
+                                                    // Standard Tab Navigation
                                                     navController.navigate(route) {
+                                                        // This pops everything up to the Home screen,
+                                                        // effectively clearing "AddTransaction" from the stack
                                                         popUpTo(navController.graph.findStartDestination().id) {
                                                             saveState = true
                                                         }
@@ -110,10 +118,19 @@ class MainActivity : ComponentActivity() {
                                                         color = Color(0xFF744BD7),
                                                         modifier = Modifier.size(42.dp)
                                                     ) {
-                                                        Icon(icon, contentDescription = label, tint = Color.White, modifier = Modifier.padding(8.dp))
+                                                        Icon(
+                                                            imageVector = icon,
+                                                            contentDescription = label,
+                                                            tint = Color.White,
+                                                            modifier = Modifier.padding(8.dp)
+                                                        )
                                                     }
                                                 } else {
-                                                    Icon(icon, contentDescription = label, tint = if(selected) Color(0xFF744BD7) else Color.Gray)
+                                                    Icon(
+                                                        imageVector = icon,
+                                                        contentDescription = label,
+                                                        tint = if(selected) Color(0xFF744BD7) else Color.Gray
+                                                    )
                                                 }
                                             }
                                         )
@@ -136,6 +153,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 })
                             }
+
                             composable<NavRoutes.BalanceSetup> {
                                 showBottomBar.value = false
                                 BalanceSetupScreen(onComplete = { cash, bank ->
@@ -148,31 +166,36 @@ class MainActivity : ComponentActivity() {
                                     }
                                 })
                             }
+
                             composable<NavRoutes.Home> {
                                 showBottomBar.value = true
                                 HomeScreen()
                             }
+
                             composable<NavRoutes.History> {
                                 showBottomBar.value = true
-                                // Added onEditNavigate to handle editing from history
                                 TransactionHistoryScreen(
                                     onEditNavigate = { id ->
                                         navController.navigate(NavRoutes.AddTransaction(id = id))
                                     }
                                 )
                             }
+
                             composable<NavRoutes.AddTransaction> { backStackEntry ->
-                                // Extract transaction ID if it exists for editing
+                                LaunchedEffect(Unit) { showBottomBar.value = false }
+
                                 val route: NavRoutes.AddTransaction = backStackEntry.toRoute()
                                 AddTransactionScreen(
                                     transactionId = route.id,
                                     onBack = { navController.popBackStack() }
                                 )
                             }
+
                             composable<NavRoutes.Insights> {
                                 showBottomBar.value = true
-                                InsightsScreen({navController.navigate(NavRoutes.GoalSetup)})
+                                InsightsScreen({})
                             }
+
                             composable<NavRoutes.More> {
                                 showBottomBar.value = true
                                 MoreScreen()
